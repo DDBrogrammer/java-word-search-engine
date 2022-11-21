@@ -1,75 +1,84 @@
 package engine;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Scanner;
+
 import java.util.Set;
 
-public class Word {
-    public static Set<String> stopWords;
-    private String prefix;
-    private String suffix;
-    private String text;
-    private boolean isKeyword;
+import java.io.FileNotFoundException;
 
+import java.util.Locale;
+
+import java.util.Scanner;
+
+import java.util.HashSet;
+
+
+import java.io.File;
+public class Word {
+    private String suffix;
+
+    public String getSuffix() {
+        return this.suffix;
+    }
     public boolean isKeyword() {
         return this.isKeyword;
-    }
-
-    public void setIsKeyword(boolean keyword) {
-        this.isKeyword = keyword;
     }
 
     public String getPrefix() {
         return this.prefix;
     }
 
-    public String getSuffix() {
-        return this.suffix;
-    }
 
     public String getText() {
         return this.text;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o instanceof Word) {
-            return ((Word) o).getText().equalsIgnoreCase(this.text);
+    public boolean equals(Object obj) {
+        if (obj instanceof Word) {
+            return ((Word) obj).getText().equalsIgnoreCase(this.text);
         }
         return false;
     }
 
     @Override
     public String toString() {
+
         return this.text;
     }
 
     public Word() {
     }
-
-
     public Word(String rawText) {
         if (!this.validateKeyWord(rawText)) {
             this.setIsKeyword(false);
+
             this.setText(rawText);
+
             this.setPrefix("");
+
             this.setSuffix("");
+
         } else {
             String prefix = this.getPrefixFromRawText(rawText);
+
             this.setPrefix(prefix);
+
             String suffix = this.getSuffixFromRawText(rawText);
+
             this.setSuffix(suffix);
+
             String text = this.getTextFromRawText(rawText, prefix, suffix);
+
             this.setText(text);
+
             this.setIsKeyword(true);
         }
     }
 
     public static Word createWord(String rawText) {
+
         Word word = new Word(rawText);
+
         return word;
     }
 
@@ -78,91 +87,97 @@ public class Word {
         if (rawText.isEmpty()) {
             return false;
         }
-        if (!rawText.matches("^[a-zA-Z!()«»\\-\\[\\]{};':\"\\\\,.<>\\/?]*$")) {
+        if (!rawText.matches("^[a-zA-Z!()«»\\-\\[\\]}{;':\"\\\\,.><\\/?]*$")) {
+
             return false;
         }
         if (stopWords.contains(rawText.toLowerCase(Locale.ROOT))) {
+
             return false;
         }
         return true;
     }
 
+    private String getTextFromRawText(String rawText, String prefix, String suffix) {
+        String text = rawText;
+        if (prefix.length() > suffix.length()) {
+
+            if (!prefix.isEmpty()) {
+
+                text = rawText.replace(prefix, "");
+            }
+
+            if (!suffix.isEmpty()) {
+
+                text = text.replace(suffix, "");
+
+            }
+
+        } else {
+
+            if (!suffix.isEmpty()) {
+
+                text = rawText.replace(suffix, "");
+
+            }
+
+            if (!prefix.isEmpty()) {
+
+                text = text.replace(prefix, "");
+
+            }
+
+        }
+        return text;
+    }
 
     private String getSuffixFromRawText(String rawText) {
-        StringBuilder suffix = new StringBuilder("");
-        String[] substrings = rawText.split("");
+        StringBuilder wordSuffix = new StringBuilder("");
+        String[] rawTextChars = rawText.split("");
         boolean isSuffixEnd = false;
-        boolean isSuffixEndWithS = false;
-        for (int i = substrings.length - 1; i >= 0; i--) {
-            if (substrings[i].matches("^[»!)\\-\\]};':\"\\\\,.>?]*$")) {
+        for (int i = rawTextChars.length - 1; i >= 0; i--) {
+            if (rawTextChars[i].matches("^[»!)\\-\\]};':\"\\\\,.>?]*$")) {
                 if (!isSuffixEnd) {
-                    suffix.append(substrings[i]);
+                    wordSuffix.append(rawTextChars[i]);
                 }
             } else {
-                    isSuffixEnd = true;
+                isSuffixEnd = true;
             }
         }
         if(rawText.contains("'s")){
-            suffix.append("s");
-            suffix.append("'");
+            wordSuffix.append("s");
+            wordSuffix.append("'");
         }
-        return suffix.reverse().toString();
+        return wordSuffix.reverse().toString();
     }
 
     private String getPrefixFromRawText(String rawText) {
-        StringBuilder prefix = new StringBuilder("");
+        StringBuilder wordPrefix = new StringBuilder("");
         boolean isPrefixEnd = false;
-        String[] substrings = rawText.split("");
-        for (String ch : substrings) {
-            if (ch.matches("^[«(\\-\\[{\"<]*$")) {
+        String[] rawTextChars = rawText.split("");
+        for (String item : rawTextChars) {
+            if (item.matches("^[<«(\\-\\[{\"]*$")) {
                 if (!isPrefixEnd) {
-                    prefix.append(ch);
+                    wordPrefix.append(item);
                 }
             } else {
                 isPrefixEnd = true;
             }
         }
-        return prefix.toString();
-    }
-
-    private String getTextFromRawText(String rawText, String prefix, String suffix) {
-        String result = rawText;
-        if (prefix.length() > suffix.length()) {
-            if (!prefix.isEmpty()) {
-                result = rawText.replace(prefix, "");
-            }
-            if (!suffix.isEmpty()) {
-                result = result.replace(suffix, "");
-                /* result= replaceLast(result, suffix ,"");*/
-            }
-        } else {
-            if (!suffix.isEmpty()) {
-                result = rawText.replace(suffix, "");
-                /* result= replaceLast(result, suffix ,"");*/
-            }
-            if (!prefix.isEmpty()) {
-                result = result.replace(prefix, "");
-            }
-        }
-
-        return result;
-    }
-
-    private String replaceLast(String text, String regex, String replacement) {
-        return text.replaceFirst("(?s)" + regex + "(?!.*?" + regex + ")", replacement);
+        return wordPrefix.toString();
     }
 
     public static boolean loadStopWords(String fileName) {
         try {
             Word.stopWords = new HashSet<>();
-            File myObj = new File(fileName);
-            Scanner myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                Word.stopWords.add(data);
+            File tempFile = new File(fileName);
+            Scanner scanner = new Scanner(tempFile);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                Word.stopWords.add(line);
             }
-            myReader.close();
-        } catch (FileNotFoundException e) {
+            scanner.close();
+        } catch (FileNotFoundException fileNotFoundException) {
             return false;
         }
         return true;
@@ -172,15 +187,32 @@ public class Word {
         Word.stopWords = stopWords;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
+    private String prefix;
+
+
+    public void setText(String text) {
+
+        this.text = text;
+    } public static Set<String> stopWords;
+
+
 
     public void setSuffix(String suffix) {
         this.suffix = suffix;
     }
 
-    public void setText(String text) {
-        this.text = text;
+
+    private String text;
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
+
+
+    private boolean isKeyword;
+
+    public void setIsKeyword(boolean keyword) {
+        this.isKeyword = keyword;
+    }
+
+
 }

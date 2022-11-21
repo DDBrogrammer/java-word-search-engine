@@ -1,74 +1,71 @@
 package engine;
 
-import java.io.File;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
+import java.nio.charset.Charset;
 public class Engine {
-    private ArrayList<Doc> docs;
-
     public int loadDocs(String dirname) {
         this.docs = new ArrayList<Doc>();
-        int fileNumber = 0;
-        File folder = new File(dirname);
-        File[] listOfFiles = folder.listFiles();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            File file = listOfFiles[i];
-            fileNumber++;
-            if (file.isFile() && file.getName().endsWith(".txt")) {
-                String content = this.readFileToString(file, dirname);
-                Doc tempDoc = new Doc(content);
+        int fileIndex = 0;
+        File inputFolder = new File(dirname);
+        File[] files = inputFolder.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File fileItem = files[i];
+            fileIndex++;
+            if (fileItem.isFile() && fileItem.getName().endsWith(".txt")) {
+                String fileContent = this.readFileToString(fileItem, dirname);
+                Doc tempDoc = new Doc(fileContent);
                 this.docs.add(tempDoc);
             }
         }
-        return fileNumber;
+        return fileIndex;
     }
 
     private String readFileToString(File file, String dirname) {
-        StringBuilder result = new StringBuilder();
-        Path path = FileSystems.getDefault().getPath(dirname + "/" + file.getName());
+        StringBuilder stringBuilder = new StringBuilder();
+        Path filePath = FileSystems.getDefault().getPath(dirname + "/" + file.getName());
         List<String> lines = null;
         try {
-            lines = Files.readAllLines(path, Charset.defaultCharset());
+            lines = Files.readAllLines(filePath, Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for (String line : lines) {
-            result.append(line).append("\n");
+        for (String item : lines) {
+            stringBuilder.append(item).append("\n");
         }
-        return result.toString();
+        return stringBuilder.toString();
 
+    }
+    public List<Result> search(Query query) {
+        List<Result> results=new ArrayList<>();
+        for (Doc item : this.docs) {
+            List<Match> tempMatchs = query.matchAgainst(item);
+            if(tempMatchs!=null && tempMatchs.size()!=0){
+                Result tempResult=new Result(item, tempMatchs);
+                results.add(tempResult);
+            }
+        }
+        Collections.sort(results);
+        return results;
     }
 
     public Doc[] getDocs() {
         return (Doc[]) this.docs.toArray();
     }
 
-    public List<Result> search(Query query) {
-        List<Result> resultList=new ArrayList<>();
-        for (Doc doc : this.docs) {
-            List<Match> tempListMatch = query.matchAgainst(doc);
-            if(tempListMatch!=null&&tempListMatch.size()!=0){
-                Result result=new Result(doc, tempListMatch);
-                resultList.add(result);
-            }
+    public String htmlResult(List<Result> results) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(Result resultItem : results){
+            stringBuilder.append(resultItem.htmlHighlight());
         }
-        Collections.sort(resultList);
-        return resultList;
+        return stringBuilder.toString();
     }
 
-    public String htmlResult(List<Result> results) {
-        StringBuilder sb = new StringBuilder();
-        for(Result result:results){
-            sb.append(result.htmlHighlight());
-        }
-        return sb.toString();
-    }
+    private ArrayList<Doc> docs;
 }

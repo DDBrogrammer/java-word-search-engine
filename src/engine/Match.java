@@ -1,55 +1,28 @@
 package engine;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Match implements Comparable<Match> {
-    private int freq;
-    private int firstIndex;
-    private Doc doc;
-    private Word word;
-
-    @Override
-    public int compareTo(Match match) {
-        return this.getFirstIndex()-match.getFirstIndex();
-    }
-
-    public Match(Doc doc, Word word, int freq, int firstIndex) {
-        this.doc = doc;
-        this.word = word;
-        this.freq=freq;
-        this.firstIndex=firstIndex;
-
-    }
-
     public Match(Doc doc, Word word) {
-        List<Word> docWordList = new ArrayList<>();
+        List<Word> docWords = new ArrayList<>();
         this.freq = 0;
         this.firstIndex = -1;
-        docWordList.addAll(doc.getTitle());
-        docWordList.addAll(doc.getBody());
-        int index = 0;
-        for (Word w : docWordList) {
-            index++;
-            if(w.equals(word)){
+        docWords.addAll(doc.getTitle());
+        docWords.addAll(doc.getBody());
+        int itemIndex = 0;
+        for (Word item : docWords) {
+            itemIndex++;
+            if(item.equals(word)){
                 this.freq= this.freq+1;
                 if(this.firstIndex==-1){
-                    this.firstIndex=index;
+                    this.firstIndex=itemIndex;
                 }
             }
         }
         this.doc=doc;
         this.word=word;
     }
-
-    public int getFreq() {
-        return this.freq;
-    }
-
-    public int getFirstIndex() {
-        return this.firstIndex;
-    }
-
+    private Doc doc;
     @Override
     public String toString() {
         return "Match{" +
@@ -59,9 +32,28 @@ public class Match implements Comparable<Match> {
                 ", word=" + word.toString() +
                 '}';
     }
+    private int freq;
+    public int getFirstIndex() {
+        return this.firstIndex;
+    }
+    public Match(Doc doc, Word word, int freq, int firstIndex) {
+        this.word = word;
+        this.doc = doc;
+        this.firstIndex=firstIndex;
+        this.freq=freq;
+    }
+    public int getFreq() {
+        return this.freq;
+    }
 
+    @Override
+    public int compareTo(Match match) {
+        return this.getFirstIndex()-match.getFirstIndex();
+    }
     public Word getWord() {
         return this.word;
     }
 
+    private int firstIndex;
+    private Word word;
 }

@@ -1,40 +1,55 @@
 package engine;
 
-import java.util.ArrayList;
 import java.util.Collections;
+
+import java.util.ArrayList;
+
 import java.util.List;
-
 public class Query {
+    public List<Word> getKeywords(){
 
-    private List<Word> keywords;
+        return this.keywords;
+
+    }
+    public List<Match> matchAgainst(Doc doc){
+        List<Match> matches = new ArrayList<>();
+
+        for(Word item:keywords){
+
+            Match tempMatch=new Match(doc,item);
+
+            if(tempMatch.getFirstIndex()!=-1){
+
+                matches.add(tempMatch);
+
+            }
+        }
+
+        Collections.sort(matches);
+
+        return matches;
+    }
+
+    private List<Word>
+            keywords;
 
     public Query(String searchPhrase){
-        String[] searchPhrases= searchPhrase.split(" ");
+
+        String[] searchStrings= searchPhrase.split(" ");
+
         this.keywords=new ArrayList<>();
-        for(String word : searchPhrases)
+
+        for(String item :
+                searchStrings)
         {
-            Word temp = new Word(word);
-            if(temp.isKeyword()){
-                this.keywords.add(temp);
+            Word tempWord = new Word(item);
+            if(tempWord.isKeyword()){
+                this.keywords.add(tempWord);
             }
+
         }
-    }
 
-    public List<Word> getKeywords(){
-        return this.keywords;
-    }
 
-    public List<Match> matchAgainst(Doc doc){
-        List<Match> results = new ArrayList<>();
-        for(Word word:keywords){
-            Match match=new Match(doc,word);
-            if(match.getFirstIndex()!=-1){
-                results.add(match);
-            }
-        }
-        Collections.sort(results);
-        return results;
     }
-
 
 }

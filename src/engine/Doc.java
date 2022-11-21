@@ -1,39 +1,36 @@
 package engine;
-
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.ArrayList;
 public class Doc {
-    private List<Word> title;
-    private List<Word> body;
-
+    public List<Word> getBody(){
+        return this.body;
+    }
+    public List<Word> getTitle(){
+        return this.title;
+    }
     public Doc(String content) {
-        String[] lines = content.split("\r\n|\n|\r");
-        String[] tiles= lines[0].split(" ");
-        String[] bodies= lines[1].split(" ");
         this.title=new ArrayList<>();
         this.body=new ArrayList<>();
-        for(String word : tiles)
+        String[] lines = content.split("\r\n|\n|\r");
+        String[] docTiles= lines[0].split(" ");
+        String[] docBodies= lines[1].split(" ");
+        for(String item : docTiles)
         {
-            Word temp = new Word(word);
-            this.title.add(temp);
+            Word tempItem = new Word(item);
+            this.title.add(tempItem);
         }
-        for(String word : bodies)
+        for(String item : docBodies)
         {
-            Word temp = new Word(word);
-            this.body.add(temp);
+            Word tempItem = new Word(item);
+            this.body.add(tempItem);
         }
-    }
-
-    public List<Word> getTitle(){
-        return title;
-    }
-
-    public List<Word> getBody(){
-        return body;
     }
 
     public boolean equals(Object o){
         return false;
     }
+
+    private List<Word> body;
+
+    private List<Word> title;
 }
