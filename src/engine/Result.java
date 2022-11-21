@@ -70,19 +70,19 @@ public class Result implements Comparable<Result>{
 
     @Override
     public int compareTo(Result result) {
-        if(this.matchCount!=result.getMatches().size()){
-            return result.getMatches().size()-this.matchCount;
+        if( this.matchCount !=  result.getMatches( ).size( ) ) {
+            return result.getMatches().size( ) - this.matchCount ;
         }
-        if(this.totalFrequency!=result.getTotalFrequency()){
-            return result.getTotalFrequency()-this.totalFrequency;
+        if( this.totalFrequency  !=  result.getTotalFrequency( ) ) {
+            return result.getTotalFrequency() - this.totalFrequency ;
         }
-        if(this.averageFirstIndex!= result.getAverageFirstIndex()){
-            return (int) (this.averageFirstIndex-result.getAverageFirstIndex());
+        if( this.averageFirstIndex !=  result.getAverageFirstIndex( ) ) {
+            return ( int ) ( this.averageFirstIndex - result.getAverageFirstIndex( ) );
         }
-        return 0;
+        return 0 ;
     }
 
-    private int totalFrequency;
+    private int totalFrequency ;
     public Result(Doc doc, List<Match> matches){
         this.matchCount=matches.size();
         this.totalFrequency=0;
@@ -110,7 +110,7 @@ public class Result implements Comparable<Result>{
     private double averageFirstIndex;
     private int matchCount;
 
-    public int getTotalFrequency(){
+    public int getTotalFrequency ( ) {
         return this.totalFrequency;
     }
     private Doc doc;

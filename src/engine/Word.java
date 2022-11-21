@@ -23,13 +23,13 @@ public class Word {
         return this.isKeyword;
     }
 
-    public String getPrefix() {
-        return this.prefix;
+    public String getPrefix ( ) {
+        return this.prefix ;
     }
 
 
-    public String getText() {
-        return this.text;
+    public String getText ( )  {
+        return this.text ;
     }
 
     @Override

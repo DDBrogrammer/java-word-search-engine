@@ -19,7 +19,7 @@ public class Engine {
             File fileItem = files[i];
             fileIndex++;
             if (fileItem.isFile() && fileItem.getName().endsWith(".txt")) {
-                String fileContent = this.readFileToString(fileItem, dirname);
+                String fileContent = this.getStringsFromFile(fileItem, dirname);
                 Doc tempDoc = new Doc(fileContent);
                 this.docs.add(tempDoc);
             }
@@ -27,16 +27,16 @@ public class Engine {
         return fileIndex;
     }
 
-    private String readFileToString(File file, String dirname) {
+    private String getStringsFromFile(File file, String dirname) {
         StringBuilder stringBuilder = new StringBuilder();
         Path filePath = FileSystems.getDefault().getPath(dirname + "/" + file.getName());
-        List<String> lines = null;
+        List<String> tempLines = null;
         try {
-            lines = Files.readAllLines(filePath, Charset.defaultCharset());
-        } catch (IOException e) {
-            e.printStackTrace();
+            tempLines = Files.readAllLines(filePath, Charset.defaultCharset());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
-        for (String item : lines) {
+        for (String item : tempLines) {
             stringBuilder.append(item).append("\n");
         }
         return stringBuilder.toString();

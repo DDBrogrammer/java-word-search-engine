@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class Match implements Comparable<Match> {
     public Match(Doc doc, Word word) {
         List<Word> docWords = new ArrayList<>();
-        this.freq = 0;
         this.firstIndex = -1;
+        this.freq = 0;
         docWords.addAll(doc.getTitle());
         docWords.addAll(doc.getBody());
         int itemIndex = 0;
@@ -19,8 +19,9 @@ public class Match implements Comparable<Match> {
                 }
             }
         }
-        this.doc=doc;
         this.word=word;
+        
+        this.doc=doc;
     }
     private Doc doc;
     @Override
