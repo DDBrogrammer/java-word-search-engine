@@ -4,6 +4,7 @@ import java.io.File;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,63 +13,81 @@ import java.util.Collections;
 import java.util.List;
 
 public class Engine {
-    private ArrayList<Doc> docs;
-
-    public int loadDocs(String dirname) {
-        this.docs = new ArrayList<Doc>();
-        int fileNumber = 0;
-        File folder = new File(dirname);
-        File[] listOfFiles = folder.listFiles();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            File file = listOfFiles[i];
-            fileNumber++;
-            if (file.isFile() && file.getName().endsWith(".txt")) {
-                String content = this.readFileToString(file, dirname);
-                Doc tempDoc = new Doc(content);
-                this.docs.add(tempDoc);
-            }
-        }
-        return fileNumber;
-    }
-
-    private String readFileToString(File file, String dirname) {
-        StringBuilder result = new StringBuilder();
-        Path path = FileSystems.getDefault().getPath(dirname + "/" + file.getName());
-        List<String> lines = null;
-        try {
-            lines = Files.readAllLines(path, Charset.defaultCharset());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for (String line : lines) {
-            result.append(line).append("\n");
-        }
-        return result.toString();
-
-    }
+    private List<Doc> docs;
 
     public Doc[] getDocs() {
         return (Doc[]) this.docs.toArray();
     }
 
-    public List<Result> search(Query query) {
-        List<Result> resultList=new ArrayList<>();
-        for (Doc doc : this.docs) {
-            List<Match> tempListMatch = query.matchAgainst(doc);
-            if(tempListMatch!=null&&tempListMatch.size()!=0){
-                Result result=new Result(doc, tempListMatch);
-                resultList.add(result);
+    public void setDocs(List<Doc> docs) {
+        this.docs = docs;
+    }
+
+    @Override
+    public String toString() {
+        return "Engine{" +
+                "docs=" + docs +
+                '}';
+    }
+
+    public Engine(List<Doc> docs) {
+        this.docs = docs;
+    }
+
+    public Engine() {
+    }
+
+    public int loadDocs(String dirname) {
+        this.docs = new ArrayList<>();
+        int fileIndexNumber = 0;
+        File dirFolder = new File(dirname);
+        File[] files = dirFolder.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File tempFile = files[i];
+            fileIndexNumber++;
+            if (tempFile.isFile() && tempFile.getName().endsWith(".txt")) {
+                String fileContent = this.readFile(tempFile, dirname);
+                Doc tempDoc = new Doc(fileContent);
+                this.docs.add(tempDoc);
             }
         }
-        Collections.sort(resultList);
-        return resultList;
+        return fileIndexNumber;
+    }
+
+    public List<Result> search(Query query) {
+        List<Result> results = new ArrayList<>();
+        for (Doc doc : this.docs) {
+            List<Match> tempMatches = query.matchAgainst(doc);
+            if (tempMatches != null && tempMatches.size() != 0) {
+                Result tempResult = new Result(doc, tempMatches);
+                results.add(tempResult);
+            }
+        }
+        Collections.sort(results);
+        return results;
+    }
+
+    private String readFile(File file, String dirname) {
+        List<String> fileLines = new ArrayList<>();
+        Charset charset = StandardCharsets.UTF_8;
+        StringBuilder fileStringBuilder = new StringBuilder();
+        Path filePath = FileSystems.getDefault().getPath(dirname + "/" + file.getName());
+        try {
+            fileLines = Files.readAllLines(filePath, charset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (String fileLine : fileLines) {
+            fileStringBuilder.append(fileLine).append("\n");
+        }
+        return fileStringBuilder.toString();
     }
 
     public String htmlResult(List<Result> results) {
-        StringBuilder sb = new StringBuilder();
-        for(Result result:results){
-            sb.append(result.htmlHighlight());
+        StringBuilder resultStringBuilder = new StringBuilder();
+        for (Result result : results) {
+            resultStringBuilder.append(result.htmlHighlight());
         }
-        return sb.toString();
+        return resultStringBuilder.toString();
     }
 }
